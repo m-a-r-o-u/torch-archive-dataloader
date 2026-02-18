@@ -3,7 +3,7 @@ import math
 import tarfile
 from collections import defaultdict
 from pathlib import Path
-from typing import DefaultDict, Dict, List, Tuple
+from typing import DefaultDict, Dict, Iterable, List, Optional, Tuple
 
 VALID_EXTENSIONS = {".jpg", ".jpeg", ".png", ".bmp", ".webp"}
 
@@ -34,6 +34,41 @@ def _group_image_paths(
         groups[group_key].append((image_path, arcname))
 
     return groups
+
+
+def _parse_group_prefixes(raw_prefixes: Optional[Iterable[str]], group_depth: int) -> Optional[List[Tuple[str, ...]]]:
+    if not raw_prefixes:
+        return None
+
+    parsed_prefixes: List[Tuple[str, ...]] = []
+    for raw_prefix in raw_prefixes:
+        prefix_parts = tuple(part for part in Path(raw_prefix).parts if part not in (".", "/"))
+        if not prefix_parts:
+            raise ValueError(f"Invalid --group-prefix value: {raw_prefix!r}")
+        if group_depth == 0:
+            raise ValueError("--group-prefix requires --group-depth > 0")
+        if len(prefix_parts) > group_depth:
+            raise ValueError(
+                f"--group-prefix={raw_prefix!r} has {len(prefix_parts)} parts but --group-depth={group_depth}"
+            )
+        parsed_prefixes.append(prefix_parts)
+
+    return parsed_prefixes
+
+
+def _filter_groups(
+    grouped_samples: Dict[Tuple[str, ...], List[Tuple[Path, Path]]],
+    group_prefixes: Optional[List[Tuple[str, ...]]],
+) -> Dict[Tuple[str, ...], List[Tuple[Path, Path]]]:
+    if not group_prefixes:
+        return grouped_samples
+
+    filtered_groups: Dict[Tuple[str, ...], List[Tuple[Path, Path]]] = {}
+    for group_key, samples in grouped_samples.items():
+        if any(group_key[:len(prefix)] == prefix for prefix in group_prefixes):
+            filtered_groups[group_key] = samples
+
+    return filtered_groups
 
 
 def _write_group_archives(
@@ -73,7 +108,13 @@ def _write_group_archives(
         print(f"  Done. Wrote {written_shards} shard(s).")
 
 
-def build_archives(input_root: Path, output_root: Path, num_shards: int, group_depth: int) -> None:
+def build_archives(
+    input_root: Path,
+    output_root: Path,
+    num_shards: int,
+    group_depth: int,
+    group_prefixes: Optional[List[str]],
+) -> None:
     image_paths = _collect_images(input_root)
 
     if not image_paths:
@@ -86,8 +127,16 @@ def build_archives(input_root: Path, output_root: Path, num_shards: int, group_d
         group_depth=group_depth,
     )
 
+    parsed_prefixes = _parse_group_prefixes(group_prefixes, group_depth)
+    grouped_samples = _filter_groups(grouped_samples, parsed_prefixes)
+    if not grouped_samples:
+        requested = ", ".join(group_prefixes or [])
+        raise RuntimeError(f"No groups matched --group-prefix values: {requested}")
+
     print(f"Found {len(image_paths)} images under {input_root}")
     print(f"Detected {len(grouped_samples)} group(s) with --group-depth={group_depth}")
+    if group_prefixes:
+        print(f"Group filter(s): {', '.join(group_prefixes)}")
     print(f"Output root: {output_root}")
 
     _write_group_archives(
@@ -128,6 +177,15 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--group-prefix",
+        action="append",
+        default=None,
+        help=(
+            "Optional group prefix filter (repeatable). "
+            "Examples with --group-depth 2: 'fog' (all severities) or 'fog/5' (single split)."
+        ),
+    )
+    parser.add_argument(
         "--num-shards",
         type=int,
         default=16,
@@ -143,6 +201,8 @@ def main() -> None:
         raise ValueError("--num-shards must be > 0")
     if args.group_depth < 0:
         raise ValueError("--group-depth must be >= 0")
+    if args.group_prefix and args.group_depth == 0:
+        raise ValueError("--group-prefix requires --group-depth > 0")
     if not args.input_root.exists():
         raise FileNotFoundError(f"Input path does not exist: {args.input_root}")
 
@@ -151,6 +211,7 @@ def main() -> None:
         output_root=args.output_root,
         num_shards=args.num_shards,
         group_depth=args.group_depth,
+        group_prefixes=args.group_prefix,
     )
 
 

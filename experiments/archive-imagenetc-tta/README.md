@@ -59,6 +59,28 @@ python convert_imagenetc_split_to_tar_shards.py \
 
 This pattern is reusable for other datasets with hierarchical split layouts.
 
+To run only the fog corruption (all severities) when using full-dataset conversion:
+
+```bash
+python convert_imagenetc_split_to_tar_shards.py \
+  --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C \
+  --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives \
+  --group-depth 2 \
+  --group-prefix fog \
+  --num-shards 16
+```
+
+To run only `fog/5`:
+
+```bash
+python convert_imagenetc_split_to_tar_shards.py \
+  --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C \
+  --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives \
+  --group-depth 2 \
+  --group-prefix fog/5 \
+  --num-shards 16
+```
+
 Execution
 ---------
 1. Install requirements:
