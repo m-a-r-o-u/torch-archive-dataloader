@@ -129,7 +129,8 @@ def main() -> None:
         transforms.ToTensor(),
     ])
 
-    shard_pattern = str(archive_path / "shard-{00000..99999}.tar")
+    shard_urls = [str(path) for path in sorted(archive_path.glob("*.tar"))]
+
 
     def convert_sample(sample: Dict[str, object]):
         class_name = _extract_class_key(sample)
@@ -144,7 +145,7 @@ def main() -> None:
     t1 = time.perf_counter()
     dataset = (
         wds.WebDataset(
-            shard_pattern,
+            shard_urls,
             shardshuffle=SHARD_SHUFFLE,
             handler=wds.handlers.reraise_exception,
         )

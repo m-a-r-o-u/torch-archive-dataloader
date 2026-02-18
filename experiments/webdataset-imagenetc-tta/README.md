@@ -24,6 +24,9 @@ Why this experiment is useful for inode pressure
   streaming throughput.
 - The pipeline is widely used for large-scale training.
 
+- The loader discovers existing `*.tar` files directly and does not assume a contiguous
+  shard index range (so missing shard numbers are fine).
+
 Main tradeoff
 -------------
 - Sampling is **approximate shuffle**, not perfect global random sampling.
