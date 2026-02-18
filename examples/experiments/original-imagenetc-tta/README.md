@@ -10,6 +10,7 @@ Dataset Structure
 ------------------
 ImageNet-C follows the standard corruption structure:
 
+```text
 imagenet-c/
     fog/
         1/
@@ -20,6 +21,7 @@ imagenet-c/
     gaussian_noise/
     motion_blur/
     ...
+```
 
 Each corruption type and severity level is treated as a separate
 ImageFolder dataset.
