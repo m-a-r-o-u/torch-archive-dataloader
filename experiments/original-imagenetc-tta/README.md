@@ -39,7 +39,18 @@ Execution
    pip install torch torchvision
    ```
 
-2. Adjust dataset path(s) in the script you want to run.
+2. Use the Tiny-ImageNet-C loose-file dataset root at:
+
+   ```text
+   /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C
+   ```
+
+   For example, if your script expects one corruption/severity split, point it to
+   a directory like:
+
+   ```text
+   /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C/fog/5
+   ```
 
 3. Run the original baseline:
 

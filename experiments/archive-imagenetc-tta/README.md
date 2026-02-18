@@ -33,8 +33,8 @@ Use the dedicated conversion script in this folder:
 
 ```bash
 python convert_imagenetc_split_to_tar_shards.py \
-  --input-root /path/to/imagenet-c/fog/5 \
-  --output-root /path/to/imagenet-c-archives/fog/5 \
+  --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C/fog/5 \
+  --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives/fog/5 \
   --num-shards 16
 ```
 
@@ -53,12 +53,16 @@ Execution
 
    ```bash
    python convert_imagenetc_split_to_tar_shards.py \
-     --input-root /path/to/imagenet-c/fog/5 \
-     --output-root /path/to/imagenet-c-archives/fog/5 \
+     --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C/fog/5 \
+     --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives/fog/5 \
      --num-shards 16
    ```
 
-3. Adjust archive dataset path(s) in the metrics script.
+3. In the metrics script, use archive dataset paths under:
+
+   ```text
+   /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives
+   ```
 
 4. Run:
 
