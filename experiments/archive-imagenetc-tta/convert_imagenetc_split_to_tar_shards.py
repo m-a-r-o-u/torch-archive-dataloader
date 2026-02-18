@@ -71,11 +71,19 @@ def _filter_groups(
     return filtered_groups
 
 
+def _print_progress(completed: int, total: int) -> None:
+    pct = (completed / total) * 100 if total > 0 else 100.0
+    print(f"Progress: {completed}/{total} images ({pct:.1f}%)")
+
+
 def _write_group_archives(
     grouped_samples: Dict[Tuple[str, ...], List[Tuple[Path, Path]]],
     output_root: Path,
     num_shards: int,
 ) -> None:
+    total_images = sum(len(samples) for samples in grouped_samples.values())
+    images_written = 0
+
     for group_key in sorted(grouped_samples):
         samples = grouped_samples[group_key]
         group_output_root = output_root.joinpath(*group_key)
@@ -103,7 +111,11 @@ def _write_group_archives(
                     tar.add(image_path, arcname=str(arcname))
 
             written_shards += 1
-            print(f"  Wrote {shard_path.name} with {end - start} image(s)")
+            shard_images = end - start
+            images_written += shard_images
+            print(f"  Wrote {shard_path.name} with {shard_images} image(s)")
+            print(f"  Group progress: {end}/{len(samples)} images")
+            _print_progress(images_written, total_images)
 
         print(f"  Done. Wrote {written_shards} shard(s).")
 
