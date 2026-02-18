@@ -29,45 +29,17 @@ Inside each tar shard, files should preserve relative class paths, e.g.
 
 How to convert loose files to tar shards
 ----------------------------------------
-The command below converts one corruption/severity split into archive shards
-while preserving class-relative paths.
+Use the dedicated conversion script in this folder:
 
 ```bash
-python - <<'PY'
-import math
-import tarfile
-from pathlib import Path
-
-INPUT_ROOT = Path('/path/to/imagenet-c/fog/5')
-OUTPUT_ROOT = Path('/path/to/imagenet-c-archives/fog/5')
-NUM_SHARDS = 16
-
-image_paths = sorted([
-    p for p in INPUT_ROOT.rglob('*')
-    if p.is_file() and p.suffix.lower() in {'.jpg', '.jpeg', '.png', '.bmp', '.webp'}
-])
-
-if not image_paths:
-    raise RuntimeError(f'No images found in {INPUT_ROOT}')
-
-OUTPUT_ROOT.mkdir(parents=True, exist_ok=True)
-shard_size = math.ceil(len(image_paths) / NUM_SHARDS)
-
-for shard_idx in range(NUM_SHARDS):
-    start = shard_idx * shard_size
-    end = min(start + shard_size, len(image_paths))
-    if start >= len(image_paths):
-        break
-
-    shard_path = OUTPUT_ROOT / f'shard-{shard_idx:05d}.tar'
-    with tarfile.open(shard_path, 'w') as tar:
-        for img_path in image_paths[start:end]:
-            arcname = img_path.relative_to(INPUT_ROOT)
-            tar.add(img_path, arcname=str(arcname))
-
-print(f'Wrote shards to: {OUTPUT_ROOT}')
-PY
+python convert_imagenetc_split_to_tar_shards.py \
+  --input-root /path/to/imagenet-c/fog/5 \
+  --output-root /path/to/imagenet-c-archives/fog/5 \
+  --num-shards 16
 ```
+
+This converts one corruption/severity split from loose files to `.tar` shards
+while preserving class-relative paths.
 
 Execution
 ---------
@@ -77,9 +49,18 @@ Execution
    pip install torch torchvision pillow
    ```
 
-2. Adjust archive dataset path(s) in the script.
+2. Convert the loose-file split to archive shards:
 
-3. Run:
+   ```bash
+   python convert_imagenetc_split_to_tar_shards.py \
+     --input-root /path/to/imagenet-c/fog/5 \
+     --output-root /path/to/imagenet-c-archives/fog/5 \
+     --num-shards 16
+   ```
+
+3. Adjust archive dataset path(s) in the metrics script.
+
+4. Run:
 
    ```bash
    python minimal_imagenetc_tta_archive_metrics_example.py
