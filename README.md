@@ -2,4 +2,5 @@
 
 This repository is organized around runnable data-loading experiments.
 
-- See `examples/README.md` for the current experiment documentation and instructions.
+- Experiments index: [`examples/README.md`](examples/README.md)
+- Current baseline experiment: [`examples/experiments/original-imagenetc-tta/README.md`](examples/experiments/original-imagenetc-tta/README.md)
