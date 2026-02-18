@@ -17,7 +17,7 @@ This script:
 
 # -------- CONFIGURATION --------
 # Adjust this path to your ImageNet-C root directory
-IMAGENET_C_ROOT = "/path/to/imagenet-c"
+IMAGENET_C_ROOT = "/dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C/"
 
 CORRUPTION = "fog"
 SEVERITY = "5"
