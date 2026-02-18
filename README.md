@@ -16,3 +16,4 @@ uv pip install torch torchvision
 
 - [Original Minimal ImageNet-C TTA Example](experiments/original-imagenetc-tta/README.md)
 - [Archive-backed ImageNet-C TTA Example](experiments/archive-imagenetc-tta/README.md)
+- [WebDataset-streaming ImageNet-C TTA Example](experiments/webdataset-imagenetc-tta/README.md)
