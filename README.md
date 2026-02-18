@@ -15,3 +15,4 @@ uv pip install torch torchvision
 ## Experiments
 
 - [Original Minimal ImageNet-C TTA Example](experiments/original-imagenetc-tta/README.md)
+- [Archive-backed ImageNet-C TTA Example](experiments/archive-imagenetc-tta/README.md)

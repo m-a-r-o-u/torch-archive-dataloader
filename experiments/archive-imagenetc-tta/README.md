@@ -6,6 +6,7 @@ Purpose
 This folder provides an archive-backed (tar shard) ImageNet-C experiment:
 
 - `minimal_imagenetc_tta_archive_metrics_example.py`
+- `minimal_imagenetc_tta_archive_full_dataset_metrics_example.py`
 
 The script keeps the same observability style as the loose-file metrics
 experiment while loading images from `.tar` shards through a custom PyTorch
@@ -29,7 +30,9 @@ Inside each tar shard, files should preserve relative class paths, e.g.
 
 How to convert loose files to tar shards
 ----------------------------------------
-Use the dedicated conversion script in this folder:
+Use the dedicated conversion script in this folder.
+
+### Option A: single split (e.g., `fog/5`)
 
 ```bash
 python convert_imagenetc_split_to_tar_shards.py \
@@ -38,8 +41,45 @@ python convert_imagenetc_split_to_tar_shards.py \
   --num-shards 16
 ```
 
-This converts one corruption/severity split from loose files to `.tar` shards
-while preserving class-relative paths.
+This converts one corruption/severity split from loose files to `.tar` shards.
+
+### Option B: full dataset (`corruption/severity` groups)
+
+```bash
+python convert_imagenetc_split_to_tar_shards.py \
+  --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C \
+  --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives \
+  --group-depth 2 \
+  --num-shards 16
+```
+
+`--group-depth 2` means:
+- first path component = corruption (e.g., `fog`)
+- second path component = severity (e.g., `5`)
+
+This pattern is reusable for other datasets with hierarchical split layouts.
+
+To run only the fog corruption (all severities) when using full-dataset conversion:
+
+```bash
+python convert_imagenetc_split_to_tar_shards.py \
+  --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C \
+  --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives \
+  --group-depth 2 \
+  --group-prefix fog \
+  --num-shards 16
+```
+
+To run only `fog/5`:
+
+```bash
+python convert_imagenetc_split_to_tar_shards.py \
+  --input-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C \
+  --output-root /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives \
+  --group-depth 2 \
+  --group-prefix fog/5 \
+  --num-shards 16
+```
 
 Execution
 ---------
@@ -58,16 +98,20 @@ Execution
      --num-shards 16
    ```
 
-3. In the metrics script, use archive dataset paths under:
+3. In the metrics script(s), use archive dataset paths under:
 
    ```text
    /dss/dsshome1/05/di38qex/datasets/Tiny-ImageNet/Tiny-ImageNet-C-archives
    ```
 
-4. Run:
+4. Run one of:
 
    ```bash
+   # Single split experiment
    python minimal_imagenetc_tta_archive_metrics_example.py
+
+   # Full dataset experiment (all corruption/severity splits)
+   python minimal_imagenetc_tta_archive_full_dataset_metrics_example.py
    ```
 
 What the script logs
